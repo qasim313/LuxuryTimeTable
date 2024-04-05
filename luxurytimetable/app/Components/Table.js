@@ -1,57 +1,69 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
 
 const Table = (props) => {
+  const initialFormState = {
+    start: '',
+    end: '',
+    monday: '',
+    tuesday: '',
+    wednesday: '',
+    thursday: '',
+    friday: '',
+    saturday: '',
+    sunday: '',
+    rows: [{ id: 1 }],
+  };
 
-  const [timetable , settimetable] = useState([]);
-  const [sunday , setSunday] = useState();
-  const [monday , setMonday] = useState();
-  const [tuesday , setTuesday] = useState();
-  const [wednessday , setWednessday] = useState();
-  const [thursday , setThursday] = useState();
-  const [friday , setFriday] = useState();
-  const [saturday , setSaturday] = useState();
-  const [start , setStart] = useState();
-  const [end,setEnd] = useState();
+  const [timetable, setTimetable] = useState(
+    Array.from({ length: parseInt(props.value) }, () => ({ ...initialFormState }))
+  );
 
-  const handleFormSubmit = (e) => {
+  const handleFormChange = (index, field, value) => {
+    const updatedTimetable = [...timetable];
+    updatedTimetable[index] = { ...updatedTimetable[index], [field]: value };
+    setTimetable(updatedTimetable);
+  };
+
+  const handleFormSubmit = (e, index) => {
     e.preventDefault();
-    settimetable([...timetable, {start, end, monday, tuesday, wednessday, thursday, friday, saturday, sunday}]);
-    setEnd("");
-    setFriday("");
-    setMonday("");
-    setSaturday("");
-    setStart("");
-    setWednessday("");
-    setThursday("");
-    setTuesday("");
-    setSunday("");
+    console.log('Form submitted:', timetable[index]);
+  };
+
+  const addRow = (formIndex) => {
+    const updatedTimetable = [...timetable];
+    const newRow = { id: updatedTimetable[formIndex].rows.length + 1 };
+    updatedTimetable[formIndex].rows.push(newRow);
+    setTimetable(updatedTimetable);
   };
 
   return (
     <>
-      {[...Array(props.value)].map((_, index) => (
-        <>
-        <form key={index} onSubmit={handleFormSubmit}>
-          <input type='time' value={start} onChange={(change) => setStart(change.target.value)} />
-          
-          <input type='time' value={end} onChange={(change) => setEnd(change.target.value)} />
-          <input type='text' value={monday} onChange={(change) => setMonday(change.target.value)} />
-          <input type='text' value={tuesday} onChange={(change) => setTuesday(change.target.value)} />
-          <input type='text' value={wednessday} onChange={(change) => setWednessday(change.target.value)} />
-          <input type='text' value={thursday} onChange={(change) => setThursday(change.target.value)} />
-          <input type='text' value={friday} onChange={(change) => setFriday(change.target.value)} />
-          <input type='text' value={saturday} onChange={(change) => setSaturday(change.target.value)} />
-          <input type='text' value={sunday} onChange={(change) => setSunday(change.target.value)} />
-          <button type='submit'>enter</button>
+      {timetable.map((form, formIndex) => (
+        <form key={formIndex} onSubmit={(e) => handleFormSubmit(e, formIndex)}>
+          {form.rows.map((row, rowIndex) => (
+            <div key={rowIndex}>
+              <label>Start Time</label>
+              <input
+                type="time"
+                value={form.start}
+                onChange={(e) => handleFormChange(formIndex, 'start', e.target.value)}
+              />
+              <label>End Time</label>
+              <input
+                type="time"
+                value={form.end}
+                onChange={(e) => handleFormChange(formIndex, 'end', e.target.value)}
+              />
+              {/* Add other inputs here */}
+            </div>
+          ))}
+          <button type="button" onClick={() => addRow(formIndex)}>Add Row</button>
+          <button type="submit">Submit</button>
         </form>
-        <br/>
-        </>
       ))}
-
-      
     </>
   );
-}
+};
 
 export default Table;
