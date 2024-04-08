@@ -1,7 +1,10 @@
 "use client";
+
 import React, { useState } from 'react';
 
+
 const Table = (props) => {
+  
   const initialFormState = {
     start: '',
     end: '',
@@ -19,6 +22,9 @@ const Table = (props) => {
     Array.from({ length: parseInt(props.value) }, () => ({ ...initialFormState }))
   );
 
+
+  console.log(timetable.length);
+
   const handleFormChange = (index, field, value) => {
     const updatedTimetable = [...timetable];
     updatedTimetable[index] = { ...updatedTimetable[index], [field]: value };
@@ -27,6 +33,7 @@ const Table = (props) => {
 
   const handleFormSubmit = (e, index) => {
     e.preventDefault();
+ 
     console.log('Form submitted:', timetable[index]);
   };
 
@@ -39,31 +46,45 @@ const Table = (props) => {
 
   return (
     <>
-      {timetable.map((form, formIndex) => (
-        <form key={formIndex} onSubmit={(e) => handleFormSubmit(e, formIndex)}>
-          {form.rows.map((row, rowIndex) => (
-            <div key={rowIndex}>
-              <label>Start Time</label>
-              <input
-                type="time"
-                value={form.start}
-                onChange={(e) => handleFormChange(formIndex, 'start', e.target.value)}
-              />
-              <label>End Time</label>
-              <input
-                type="time"
-                value={form.end}
-                onChange={(e) => handleFormChange(formIndex, 'end', e.target.value)}
-              />
-              {/* Add other inputs here */}
-            </div>
-          ))}
-          <button type="button" onClick={() => addRow(formIndex)}>Add Row</button>
-          <button type="submit">Submit</button>
-        </form>
-      ))}
+      {timetable.map((form,formIndex) => (
+        console.log(form)
+       // console.log(formIndex)
+
+
+
+       // <form key={formIndex} onSubmit={(e) => handleFormSubmit(e, formIndex)}>
+
+
+
+      //     {form.rows.map((row, rowIndex) => (
+      //       <div key={rowIndex}>
+      //         <label>Start Time</label>
+      //         <input
+      //           type="time"
+      //           value={form.start}
+      //           onChange={(e) => handleFormChange(formIndex, 'start', e.target.value)}
+      //         />
+      //         <label>End Time</label>
+      //         <input
+      //           type="time"
+      //           value={form.end}
+      //           onChange={(e) => handleFormChange(formIndex, 'end', e.target.value)}
+      //         />
+              
+      //       </div>
+      //     ))}
+      //     <button type="button" onClick={() => addRow(formIndex)}>Add Row</button>
+      //     <button type="submit">Submit</button>
+          
+      //   </form>
+       ))}
+
+        {/* {console.log(timetable)} */}
     </>
   );
 };
 
 export default Table;
+
+
+
