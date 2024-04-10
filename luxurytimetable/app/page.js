@@ -1,273 +1,156 @@
 "use client";
-import React, { useState } from 'react';
-
-const Page = () => {
-
-// const subject = [
-//     {name:"",
-//     sections:
-//     [
-//       {sname:"",
-//       times:
-//       [
-//         {day:"",
-//         sTime:"",
-//         eTime:""
-//         }
-//       ]
-//     }
+import SubjectCard from './components/SubjectCard';
+import PreferencesForm from './components/PreferencesForm';
+import TimetableDisplay from './components/TimetableDisplay';
+export default function Page() {
+  const [numSubjects, setNumSubjects] = useState(0);
+  const [subjects, setSubjects] = useState([]);
+  const [subjectsSubmitted, setSubjectsSubmitted] = useState(false);
+  const [preferencesSubmitted, setPreferencesSubmitted] = useState(false);
+  const [preferences, setPreferences] = useState({
+    daysOff: [],
+    arrivalTimes: {},
+    departureTimes: {},
+    gapBetweenLectures: 0,
+  });
+  const [generatedTimetable, setGeneratedTimetable] = useState(null);
+  const [timetableError, setTimetableError] = useState(null);
   
-//   ]
-// }
-// ];
+  const handleNext = () => {
+    const newSubjects = Array.from({ length: numSubjects }, (_, index) => ({
+      id: index,
+      name: `Subject ${index + 1}`,
+      sections: [],
+    }));
+    setSubjects(newSubjects);
+  };
 
+  const handleSubmitSubjects = () => {
+    setSubjectsSubmitted(true);
+  };
 
-  const subjects =[];
-
-
-  const subjectData = {
-    subjectname:"",
-    sections:[]
-  }
-
-  const sectionData= {
-    sectionnames:"",
-    times:[]
-
-  }
-
-  const sectiontimes = {
-    start:"",
-    end:"",
-    day:"",
-  }
-
-
-
-  const[subjectNumber , setsubjectnumber] = useState(); 
-
-
-
-
-
-  const submitForm = (e)=> {
-    e.preventDefault();
+  const handlePreferencesSubmit = (preferencesData) => {
+    setPreferences(preferencesData);
+    const { timetable, error } = generateTimetable(subjects, preferencesData);
+  
+    if (error) {
+      setTimetableError(error);
+      setGeneratedTimetable(null);
+    } else {
+      setGeneratedTimetable(timetable);
+      setTimetableError(null);
+    }
+  
+    setPreferencesSubmitted(true);
+  };
+  
+  function generateTimetable(subjects, preferences) {
+    const timetable = {};
+  
+    for (const subject of subjects) {
+      let sectionFound = false;
+  
+      for (const section of subject.sections) {
+        if (section.times.every(timeSlot => {
+          const { day, start, end } = timeSlot;
+          const arrival = preferences.arrivalTimes[day] || '00:00';
+          const departure = preferences.departureTimes[day] || '23:59';
+  
+          // Check if the section's time slot is within the user's arrival and departure times
+          if (start < arrival || end > departure) {
+            return false;
+          }
+  
+          // Check if there's an existing time slot in the timetable that conflicts with the current section's time slot
+          if (timetable[day]) {
+            for (const existingSlot of timetable[day]) {
+              if ((start >= existingSlot.start && start < existingSlot.end) || (end > existingSlot.start && end <= existingSlot.end)) {
+                return false;
+              }
+            }
+          }
+  
+          return true;
+        })) {
+          // If the section fits within the user's preferences and doesn't conflict with existing time slots, add it to the timetable
+          sectionFound = true;
+          section.times.forEach(({ day, start, end }) => {
+            if (!timetable[day]) {
+              timetable[day] = [];
+            }
+            timetable[day].push({ subject: subject.name, section: section.name, start, end });
+          });
+          break;
+        }
+      }
+  
+      if (!sectionFound) {
+        return { error: `No suitable section found for subject: ${subject.name}` };
+      }
+    }
+  
+    return { timetable };
   }
 
   return (
-    <>
-
-      <form onSubmit={submitForm}>
-
-      </form>
-    </>
-  );
-
-
-
-
-
-//   const initialTimetableForm = {
-//     start: '',
-//     end: '',
-//     monday: '',
-//     tuesday: '',
-//     wednesday: '',
-//     thursday: '',
-//     friday: '',
-//     saturday: '',
-//     sunday: '',
-//   };
-//   const [number, setNumber] = useState("");
-//   const [isSubmit, setIsSubmit] = useState(false);
-//   const [timetable, setTimetable] = useState([]);
-//   const [tables, setTables] = useState([]);
-//   const [rows , setrows] = useState();
-//   const [bool,setbool] = useState(false);
-
-
-//   const submitForm = (e) => {
-//     e.preventDefault();
-//     if (parseInt(number) > 0) {
-//       setTables(Array.from({ length: parseInt(number) }, () => ({ ...timetable })));
-//       setIsSubmit(true);
-//     } else {
-//       console.log("Please enter a valid number greater than 0.");
-//     }
-//   };
-
-//   const submitTable = (e, formIndex) => {
-//     e.preventDefault();
-//     // Do something with timetable[formIndex]
-//   };
-
-//   const addRow = (formIndex) => {
-//     const newTable = Array.from({ length: parseInt(rows) }, () => ({ ...initialTimetableForm }));
-//     setTables(prevTables => {
-//       const updatedTables = [...prevTables];
-//       updatedTables[formIndex] = newTable;
-//       return updatedTables;
-//     });
-
-//     console.log(tables);
-//   };
-//   const conform = () => {
-//     setbool(true);
-//   }
-//   const getTable =() => {
-//     console.log(tables);
-//   }
-
- 
-
-//   return (
-//     <>
-//      <div className="flex items-center justify-center h-screen w-screen opacity-80 bg-[radial-gradient(circle_at_44%_13%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_98%,transparent_98%,_transparent_100%),radial-gradient(circle_at_87%_84%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_46%,transparent_46%,_transparent_100%),radial-gradient(circle_at_84%_60%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_40%,transparent_40%,_transparent_100%),radial-gradient(circle_at_21%_32%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_28%,transparent_28%,_transparent_100%),radial-gradient(circle_at_57%_12%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_34%,transparent_34%,_transparent_100%),radial-gradient(circle_at_33%_60%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_29%,transparent_29%,_transparent_100%),radial-gradient(circle_at_3%_11%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_60%,transparent_60%,_transparent_100%),radial-gradient(circle_at_0%_74%,_hsla(237,0%,100%,0.05)_0%,_hsla(237,0%,100%,0.05)_87%,transparent_87%,_transparent_100%),linear-gradient(45deg,_rgb(99,_105,_190),rgb(99,_70,_205))]">
-//       <div className='flex items-center justify-center  bg-rose-400 h-96 w-96 rounded-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] '>
-//       <form onSubmit={submitForm} className="form ">  {/* Added classes */}
-//         <input
-//           className="number-input rounded-md text-center justify-center h-10 w-60"
-//           type="number"
-//           placeholder="Enter the Number of Subjects"
-//           value={number}
-//           onChange={(event) => setNumber(event.target.value)}
-//         />
-//         <button  type='submit' class="transition ease-in-out delay-150 bg-blue-600 hover:-translate-y-1 hover:scale-110 hover:bg-green-500 duration-300 ... flex mt-6 ml-20 w-20 text-center justify-center text-white rounded-md h-7 blur-none">
-//               Enter
-//         </button>
-//       </form>
-//       </div>
-//     </div>
-          
-//       {isSubmit && tables.map((form, formIndex) => (
-//         <form key={formIndex} onSubmit={(e) => submitTable(e, formIndex)}>
-//           <input type='number' placeholder='enter no of rows' onChange={(change)=>{setrows(change.target.value)}} />
-//           <button type='button' onClick={() => addRow(formIndex)}>add Row</button>
-//         </form>
-//       ))}
-//       {isSubmit &&<button type='button' onClick={conform}>conform</button>}
-
-//       {bool && tables.map((form, index) => (
-//   <div key={index}>
-//     {Array.isArray(form) && form.map((obj, i) => (
-//       <div   key={i}>
-        
-//       <input 
-//         type='time' 
+    <div className="container mx-auto px-4">
+      {!subjectsSubmitted ? (
+       <>
+       <div>
+         <br/>
+         <label htmlFor="numSubjects" className="block text-sm font-medium text-gray-700">
+           Enter Number of Subjects:
+         </label>
+         <div className="flex items-center space-x-4 mt-1">
+           <input
+             id="numSubjects"
+             type="number"
+             value={numSubjects}
+             onChange={(e) => setNumSubjects(parseInt(e.target.value))}
+             className="block w-1/3 rounded-lg border-2 border-gray-200 p-3 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+             placeholder="Enter Number of Subjects"
+           />
+           <button
+             onClick={handleNext}
+             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+           >
+             Next
+           </button>
+         </div>
+       </div>
        
-//         placeholder='enter start time'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], start: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-//       <input 
-//         type='time' 
-          
-//         placeholder='enter end time'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], end: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-//       <input 
-//         type='text' 
-          
-//         placeholder='enter lacture on monday'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], monday: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-
-//       <input 
-//         type='text' 
-          
-//         placeholder='enter lacture on Tuesday'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], tuesday: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-
-
-//       <input 
-//         type='text' 
-          
-//         placeholder='enter lacture on wednesday'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], wednesday: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-
-
-
-
-//       <input 
-//         type='text' 
-          
-//         placeholder='enter lacture on thursday'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], thursday: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-
-
-
-//     <input 
-//         type='text' 
-          
-//         placeholder='enter lacture on friday'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], friday: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-
-
-//     <input 
-//         type='text' 
-          
-//         placeholder='enter lacture on saturday'  
-//         onChange={(change) => { 
-//           const updatedTables = [...tables];
-//           updatedTables[index][i] = { ...updatedTables[index][i], saturday: change.target.value };
-//           setTables(updatedTables);
-//         }}
-//       />
-
-
-
-
-
-
-//       {/* <button type='submit'>submit</button> */}
-      
-//       </div>
-//     ))}
-//     <button type='button' onClick={getTable}>add Table</button>
-//   </div>
-// ))}
-
-
-//     </>
-//   );
-};
-
-
-export default Page;
+       {subjects.map((subject, index) => (
+         <SubjectCard
+           key={index}
+           subject={subject}
+           setSubjects={setSubjects}
+           subjects={subjects}
+           subjectIndex={index}
+         />
+       ))}
+  
+       <div className="flex justify-end mt-6">
+         <button
+           onClick={handleSubmitSubjects}
+           className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none"
+         >
+           Next
+         </button>
+       </div>
+     </>
+      ) : !preferencesSubmitted ? (
+        <PreferencesForm
+          preferences={preferences}
+          setPreferences={setPreferences}
+          onSubmit={handlePreferencesSubmit}
+        />
+      ) : timetableError ? (
+        <div className="error-message">
+          <p>{timetableError}</p>
+        </div>
+      ) : (
+        <TimetableDisplay timetable={generatedTimetable} />
+      )}
+    </div>
+  );
+}
