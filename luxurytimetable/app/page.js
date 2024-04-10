@@ -1,4 +1,5 @@
 "use client";
+import React, { useState } from 'react';
 import SubjectCard from './components/SubjectCard';
 import PreferencesForm from './components/PreferencesForm';
 import TimetableDisplay from './components/TimetableDisplay';
