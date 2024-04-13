@@ -1,25 +1,19 @@
-// app/components/TimeSlot.js
 import React from 'react';
+import { AiOutlineDelete } from 'react-icons/ai';
 
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const TimeSlot = ({ timeslot, timeslotIndex, sectionIndex, subjectIndex, subjects, setSubjects }) => {
+const TimeSlot = ({ timeslot, onUpdateTimeslot, onDeleteTimeSlot }) => {
   const handleTimeSlotChange = (field, value) => {
-    const updatedSubjects = [...subjects];
-    const section = updatedSubjects[subjectIndex].sections[sectionIndex];
-    section.timeslots[timeslotIndex] = { ...section.timeslots[timeslotIndex], [field]: value };
-    setSubjects(updatedSubjects);
+    onUpdateTimeslot({ ...timeslot, [field]: value }); 
   };
 
   return (
-    <div className="flex space-x-2 mb-2">
+    <div className="flex space-x-2 mb-2 items-center">
       <select
         value={timeslot.day}
         onChange={(e) => handleTimeSlotChange('day', e.target.value)}
         className="w-1/3 px-3 py-2 border rounded-md shadow-sm"
       >
-        <option value="">Select Day</option>
-        {daysOfWeek.map((day) => (
+        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
           <option key={day} value={day}>{day}</option>
         ))}
       </select>
@@ -35,6 +29,12 @@ const TimeSlot = ({ timeslot, timeslotIndex, sectionIndex, subjectIndex, subject
         onChange={(e) => handleTimeSlotChange('endTime', e.target.value)}
         className="w-1/3 px-3 py-2 border rounded-md shadow-sm"
       />
+      <button
+        onClick={onDeleteTimeSlot}
+        className="text-red-500 hover:text-red-700"
+      >
+        <AiOutlineDelete size={24} />
+      </button>
     </div>
   );
 };

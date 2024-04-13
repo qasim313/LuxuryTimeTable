@@ -10,12 +10,12 @@ export default function RootLayout({ children }) {
       </head>
       <body className="flex flex-col min-h-screen bg-gray-100">
         <header className="bg-indigo-600 text-white p-4 text-center font-bold shadow-md">
-          LuxuryTimeTable
+          Luxury TimeTable
         </header>
   
         {children}
   
-        <footer className="bg-indigo-600 text-white p-4 text-center shadow-md">
+        <footer className="mt-5 bg-indigo-600 text-white p-4 text-center shadow-md">
           <div className="flex justify-center space-x-8">
             <a href="https://www.linkedin.com/in/member1" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-300">
               Member 1

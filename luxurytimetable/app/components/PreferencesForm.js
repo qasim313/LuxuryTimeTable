@@ -75,11 +75,12 @@ const PreferencesForm = ({ preferences, setPreferences, onSubmit }) => {
       <button
         type="button"
         onClick={() => setShowTimePreferences(true)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none mt-4"
       >
         Add Arrival and Departure Time Preference
       </button>
 
+      <br></br>
       {showTimePreferences && timePreferences.map((timePreference, index) => (
         <div key={index} className="flex gap-4 items-center">
           <select

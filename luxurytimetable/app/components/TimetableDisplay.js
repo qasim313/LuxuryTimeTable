@@ -1,4 +1,3 @@
-// TimetableDisplay.js
 import React from 'react';
 
 const TimetableDisplay = ({ timetable }) => {
