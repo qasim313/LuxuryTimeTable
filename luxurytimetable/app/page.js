@@ -43,11 +43,48 @@ export default function Page() {
     setCurrentStep(steps.SUBJECT_MANAGEMENT);
   };
 
+  const validate = () => {
+    console.log("hi");
+    console.log(subjects);
+    // Map through each subject and its sections to ensure no null or empty values
+    const isValid = subjects.every(subject => {
+        // Check if subject has a non-empty name
+        if (!subject.name.trim()) {
+            console.error("Subject name is empty");
+            return false;
+        }
+
+        // Check each section of the subject
+        return subject.sections.every(section => {
+            // Check if section has a non-empty name
+            if (!section.name.trim()) {
+                console.error("Section name is empty");
+                return false;
+            }
+
+            // Check if section has timeslots and they are all filled correctly
+            return section.timeslots && section.timeslots.every(timeslot => {
+                // Check if timeslot day, start time, and end time are not empty
+                if (timeslot.day==="" || timeslot.start==="" || timeslot.end==="") {
+                    console.error("Timeslot information is incomplete", timeslot);
+                    return false;
+                }
+                return true;
+            });
+        });
+    });
+
+    // Return true if all checks pass, false otherwise
+    return isValid;
+};
+
+
   const handleSubmitSubjects = () => {
-    if (!subjects.every((subject) => subject.sections.length > 0)) {
+    if (!validate()) {
       toast.error("Each subject must have at least one section.");
       return;
     }
+   
     setCurrentStep(steps.PREFERENCES_INPUT);
   };
 
@@ -68,6 +105,9 @@ export default function Page() {
 
   function generateTimetable(subjects, preferences) {
     // Example algorithm for timetable generation
+
+
+
     return { timetable: {}, error: null };
   }
 

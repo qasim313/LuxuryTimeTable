@@ -13,7 +13,7 @@ const TimeSlot = ({ timeslot, onUpdateTimeslot, onDeleteTimeSlot }) => {
         onChange={(e) => handleTimeSlotChange('day', e.target.value)}
         className="w-1/3 px-3 py-2 border rounded-md shadow-sm"
       >
-        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+        {["select day",'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
           <option key={day} value={day}>{day}</option>
         ))}
       </select>
@@ -22,12 +22,14 @@ const TimeSlot = ({ timeslot, onUpdateTimeslot, onDeleteTimeSlot }) => {
         value={timeslot.startTime}
         onChange={(e) => handleTimeSlotChange('startTime', e.target.value)}
         className="w-1/3 px-3 py-2 border rounded-md shadow-sm"
+        
       />
       <input
         type="time"
         value={timeslot.endTime}
         onChange={(e) => handleTimeSlotChange('endTime', e.target.value)}
         className="w-1/3 px-3 py-2 border rounded-md shadow-sm"
+        
       />
       <button
         onClick={onDeleteTimeSlot}
