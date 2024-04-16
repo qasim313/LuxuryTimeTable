@@ -19,9 +19,7 @@ export default function Page() {
   const [currentStep, setCurrentStep] = useState(steps.SUBJECT_INPUT);
   const [preferences, setPreferences] = useState({
     daysOff: [],
-    arrivalTimes: {},
-    departureTimes: {},
-    gapBetweenLectures: 0,
+    gapBetweenLectures: 0, 
   });
   const [generatedTimetable, setGeneratedTimetable] = useState(null);
   const [timetableError, setTimetableError] = useState("");
@@ -44,8 +42,7 @@ export default function Page() {
   };
 
   const validate = () => {
-    console.log("hi");
-    console.log(subjects);
+    
     // Map through each subject and its sections to ensure no null or empty values
     const isValid = subjects.every(subject => {
         // Check if subject has a non-empty name
@@ -81,10 +78,9 @@ export default function Page() {
 
   const handleSubmitSubjects = () => {
     if (!validate()) {
-      toast.error("Each subject must have at least one section.");
+      toast.error("Error fill all inputs");
       return;
-    }
-   
+    }  
     setCurrentStep(steps.PREFERENCES_INPUT);
   };
 
@@ -124,6 +120,8 @@ export default function Page() {
       }
     }
   };
+
+  console.log(preferences);
 
   return (
     <div className="container mx-auto px-4">
