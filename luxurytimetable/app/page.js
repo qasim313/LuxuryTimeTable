@@ -19,7 +19,7 @@ export default function Page() {
   const [currentStep, setCurrentStep] = useState(steps.SUBJECT_INPUT);
   const [preferences, setPreferences] = useState({
     daysOff: [],
-    gapBetweenLectures: 0, 
+    gapBetweenLectures: 0,
   });
   const [generatedTimetable, setGeneratedTimetable] = useState(null);
   const [timetableError, setTimetableError] = useState("");
@@ -42,45 +42,41 @@ export default function Page() {
   };
 
   const validate = () => {
-    
-    // Map through each subject and its sections to ensure no null or empty values
-    const isValid = subjects.every(subject => {
-        // Check if subject has a non-empty name
-        if (!subject.name.trim()) {
-            console.error("Subject name is empty");
-            return false;
+    const isValid = subjects.every((subject) => {
+      if (!subject.name.trim()) {
+        console.error("Subject name is empty");
+        return false;
+      }
+      return subject.sections.every((section) => {
+        if (!section.name.trim()) {
+          console.error("Section name is empty");
+          return false;
         }
-
-        // Check each section of the subject
-        return subject.sections.every(section => {
-            // Check if section has a non-empty name
-            if (!section.name.trim()) {
-                console.error("Section name is empty");
-                return false;
+        return (
+          section.timeslots &&
+          section.timeslots.every((timeslot) => {
+            if (
+              timeslot.day === "" ||
+              timeslot.start === "" ||
+              timeslot.end === ""
+            ) {
+              console.error("Timeslot information is incomplete", timeslot);
+              return false;
             }
-
-            // Check if section has timeslots and they are all filled correctly
-            return section.timeslots && section.timeslots.every(timeslot => {
-                // Check if timeslot day, start time, and end time are not empty
-                if (timeslot.day==="" || timeslot.start==="" || timeslot.end==="") {
-                    console.error("Timeslot information is incomplete", timeslot);
-                    return false;
-                }
-                return true;
-            });
-        });
+            return true;
+          })
+        );
+      });
     });
 
-    // Return true if all checks pass, false otherwise
     return isValid;
-};
-
+  };
 
   const handleSubmitSubjects = () => {
     if (!validate()) {
       toast.error("Error fill all inputs");
       return;
-    }  
+    }
     setCurrentStep(steps.PREFERENCES_INPUT);
   };
 
@@ -88,6 +84,8 @@ export default function Page() {
     setPreferences(preferencesData);
     const { timetable, error } = generateTimetable(subjects, preferencesData);
 
+    console.log(preferences);
+    console.log(subjects);
     if (error) {
       setTimetableError(error);
       setGeneratedTimetable(null);
@@ -100,12 +98,59 @@ export default function Page() {
   };
 
   function generateTimetable(subjects, preferences) {
-    // Example algorithm for timetable generation
-
-
-
-    return { timetable: {}, error: null };
+    // Initialize a map to hold non-conflicting sections for each subject
+    const subjectSectionsMap = new Map();
+  
+    // Convert daysOff and timePreferences to Sets for faster lookup
+    const daysOffSet = new Set(preferences.daysOff);
+    const timePreferencesMap = new Map();
+    preferences.timePreferences.forEach(pref => {
+      timePreferencesMap.set(pref.day, { arrival: pref.arrival, departure: pref.departure });
+    });
+  
+    console.log("pref: ", preferences);
+  
+    // Loop through each subject
+    subjects.forEach((subject) => {
+      // Initialize an array in the map for the subject's non-conflicting sections
+      if (!subjectSectionsMap.has(subject.name)) {
+        subjectSectionsMap.set(subject.name, []);
+      }
+  
+      // Loop through each section of the subject
+      subject.sections.forEach((section) => {
+        // Check if the section's timeslots fit with the preferences
+        const nonConflictingTimeslots = section.timeslots.filter((timeslot) => {
+          const dayPreference = timePreferencesMap.get(timeslot.day);
+          // Make sure the day is not off and fits time preferences if specified
+          return !daysOffSet.has(timeslot.day) && (
+            !dayPreference || (
+              (timeslot.startTime >= dayPreference.arrival || timeslot.startTime === "") &&
+              (timeslot.endTime <= dayPreference.departure || timeslot.endTime === "")
+            )
+          );
+        });
+  
+        // If there are non-conflicting timeslots, add the section to the map
+        if (nonConflictingTimeslots.length > 0) {
+          subjectSectionsMap.get(subject.name).push({
+            ...section,
+            timeslots: nonConflictingTimeslots
+          });
+        }
+      });
+    });
+  
+    // Convert the map into an object for the final timetable
+    const timetable = {};
+    subjectSectionsMap.forEach((sections, subjectName) => {
+      timetable[subjectName] = sections;
+    });
+  
+    console.log("time table: ",timetable);
+    return { timetable, error: null };
   }
+  
 
   const handleBack = () => {
     if (currentStep === steps.SUBJECT_MANAGEMENT) {
@@ -120,8 +165,6 @@ export default function Page() {
       }
     }
   };
-
-  console.log(preferences);
 
   return (
     <div className="container mx-auto px-4">
