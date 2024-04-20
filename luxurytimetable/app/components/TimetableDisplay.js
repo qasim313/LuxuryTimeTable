@@ -34,7 +34,7 @@ const TimetableDisplay = ({ timetable }) => {
   const sortedDays = Array.from(allDays).sort();
 
   return (
-    <div className="timetable">
+    <div className="timetable relative overflow-hidden">
       <table className="table-fixed border-collapse border border-gray-300 w-full mt-4">
         <thead>
           <tr>

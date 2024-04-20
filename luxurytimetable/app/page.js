@@ -17,20 +17,23 @@ export default function Page() {
   const [numSubjects, setNumSubjects] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [currentStep, setCurrentStep] = useState(steps.SUBJECT_INPUT);
+  const [timePrefObject,setTimePrefObject] = useState({day:"monday",start:"",end:""});
   const [preferences, setPreferences] = useState({
     daysOff: [],
     gapBetweenLectures: 0,
+    timePreferences: [],
   });
   const [generatedTimetable, setGeneratedTimetable] = useState(null);
   const [timetableError, setTimetableError] = useState("");
 
   const handleNext = () => {
+    console.log("Num Subjects: ", numSubjects);
     if (numSubjects <= 0) {
       toast.error("Please enter a valid number of subjects");
       return;
     }
     const newSubjects = Array.from(
-      { length: parseInt(numSubjects, 10) },
+      { length: parseInt(numSubjects) },
       (_, index) => ({
         id: Date.now() + index, // Ensure unique ID generation
         name: `Subject ${index + 1}`,
@@ -39,6 +42,7 @@ export default function Page() {
     );
     setSubjects(newSubjects);
     setCurrentStep(steps.SUBJECT_MANAGEMENT);
+    console.log("Subjects: ", subjects);
   };
 
   const validate = () => {
@@ -77,23 +81,33 @@ export default function Page() {
       toast.error("Error fill all inputs");
       return;
     }
+    console.log("Subjects: ", subjects);
     setCurrentStep(steps.PREFERENCES_INPUT);
+
+  };
+
+  const validateSubjectSubmission = () => {
+    for (let subject of subjects) {
+      if (!subject.name || !subject.sections || subject.sections.length === 0 || s) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const handlePreferencesSubmit = (preferencesData) => {
     setPreferences(preferencesData);
     const { timetable, error } = generateTimetable(subjects, preferencesData);
 
-    console.log(preferences);
-    console.log(subjects);
+    setCurrentStep(steps.TIMETABLE_DISPLAY);
+    // console.log(preferences);
+    // console.log(subjects);
     if (error) {
       setTimetableError(error);
       setGeneratedTimetable(null);
-      setCurrentStep(steps.TIMETABLE_DISPLAY);
     } else {
       setGeneratedTimetable(timetable);
       setTimetableError("");
-      setCurrentStep(steps.TIMETABLE_DISPLAY);
     }
   };
 //working on it 
@@ -177,6 +191,10 @@ function generateTimetable(subjects, preferences) {
   });
   console.log("Final timetable: ", timetable);
 
+  // Check if the number of keys in the map is less than the number of subjects
+  if (Object.keys(timetable).length < numSubjects) {
+    return { timetable: null, error: "Error generating timetable" };
+  }
   return { timetable, error: null };
 }
 
@@ -190,11 +208,7 @@ function generateTimetable(subjects, preferences) {
     } else if (currentStep === steps.PREFERENCES_INPUT) {
       setCurrentStep(steps.SUBJECT_MANAGEMENT);
     } else if (currentStep === steps.TIMETABLE_DISPLAY) {
-      if (timetableError) {
-        setCurrentStep(steps.PREFERENCES_INPUT);
-      } else {
-        setCurrentStep(steps.SUBJECT_MANAGEMENT);
-      }
+      setCurrentStep(steps.PREFERENCES_INPUT);      
     }
   };
 
@@ -219,6 +233,7 @@ function generateTimetable(subjects, preferences) {
               placeholder="Enter Number of Subjects"
             />
             <button
+              type="submit"
               onClick={handleNext}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
             >
@@ -279,16 +294,17 @@ function generateTimetable(subjects, preferences) {
           {timetableError ? (
             <div className="error-message">
               <p>{timetableError}</p>
-              <button
+             
+            </div>
+          ) : (
+            <TimetableDisplay timetable={generatedTimetable} />
+          )}
+           <button
                 onClick={handleBack}
                 className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none"
               >
                 Back to Preferences
               </button>
-            </div>
-          ) : (
-            <TimetableDisplay timetable={generatedTimetable} />
-          )}
         </>
       )}
     </div>

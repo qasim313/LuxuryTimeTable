@@ -3,3 +3,43 @@
 @tailwind components;
 @tailwind utilities;
 
+.timetable {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .timetable::after {
+    content: "luxurytimetable.vercel.app";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size:50px;
+    color: rgba(200, 200, 200, 0.26);
+    z-index: 0;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none; /* Prevent the watermark from being interactable */
+  }
+  
+  .table-fixed {
+    position: relative;
+    z-index: 1; /* Ensures table text appears above the watermark */
+  }
+  
+
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-fadeInScale {
+    animation: fadeInScale 0.3s ease-out forwards;
+  }
+  

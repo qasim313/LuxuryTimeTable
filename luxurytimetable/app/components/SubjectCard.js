@@ -3,6 +3,7 @@ import SectionCard from './SectionCard';
 import { AiOutlineDelete } from 'react-icons/ai'; // Import for the delete icon
 
 const SubjectCard = ({ subject, subjects, setSubjects, subjectIndex }) => {
+  
   const updateSubjectName = (e) => {
     const updatedSubjects = [...subjects];
     updatedSubjects[subjectIndex].name = e.target.value;

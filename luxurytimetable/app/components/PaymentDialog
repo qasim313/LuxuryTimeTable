@@ -1,0 +1,58 @@
+import React, { useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@material-ui/core';
+import MailIcon from '@material-ui/icons/Mail';
+
+function PaymentDialog({ open, handleClose }) {
+    const [step, setStep] = useState(1);
+    const [fullName, setFullName] = useState('');
+
+    
+    const handleNext = () => {
+        if (step === 1) {
+            setStep(2);
+        } else {
+            // Send an email, for example using EmailJS or a backend service
+            sendEmail(fullName);
+            setStep(3);
+        }
+    };
+
+    const sendEmail = (name) => {
+        console.log(`Send an email to abc@gmail.com with the name: ${name}`);
+        // Implement actual email sending logic here
+    };
+
+    return (
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{step === 3 ? "Thank You!" : "Support Us"}</DialogTitle>
+            <DialogContent>
+                {step === 1 && (
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Full Name"
+                        type="text"
+                        fullWidth
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                    />
+                )}
+                {step === 2 && (
+                    <p>This is our SadaPay account number: 03564654646. You can pay here to support our efforts.</p>
+                )}
+                {step === 3 && (
+                    <div className="flex flex-col items-center justify-center">
+                        <p>Thank you for your support!</p>
+                        <MailIcon style={{ color: 'red', fontSize: 50 }}/>
+                    </div>
+                )}
+            </DialogContent>
+            <DialogActions>
+                {step !== 3 && <Button onClick={handleNext}>{step === 1 ? "Pay Now" : "I Paid"}</Button>}
+                {step === 3 && <Button onClick={handleClose}>Close</Button>}
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+export default PaymentDialog;
