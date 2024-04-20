@@ -97,68 +97,88 @@ export default function Page() {
     }
   };
 //working on it 
-  function generateTimetable(subjects, preferences) {
-    // Initialize a map to hold non-conflicting sections for each subject
-    const subjectSectionsMap = new Map();
-  
-    // Convert daysOff and timePreferences to Sets for faster lookup
-    const daysOffSet = new Set(preferences.daysOff);
-    const timePreferencesMap = new Map();
-    preferences.timePreferences.forEach(pref => {
-      timePreferencesMap.set(pref.day, { arrival: pref.arrival, departure: pref.departure });
-    });
-  
-    // console.log("pref: ", preferences);
+function generateTimetable(subjects, preferences) {
+  // Initialize a map to hold non-conflicting sections for each subject
+  const subjectSectionsMap = new Map();
 
+  // Convert daysOff and timePreferences to Sets for faster lookup
+  const daysOffSet = new Set(preferences.daysOff);
+  const timePreferencesMap = new Map();
+  preferences.timePreferences.forEach(pref => {
+    timePreferencesMap.set(pref.day, { arrival: pref.arrival, departure: pref.departure });
+  });
 
-    console.log("days of ",daysOffSet);
-    console.log("Time pref map ",timePreferencesMap);
-  
-    // Loop through each subject
-    subjects.forEach((subject) => {
-      // Initialize an array in the map for the subject's non-conflicting sections
-      if (!subjectSectionsMap.has(subject.name)) {
-        subjectSectionsMap.set(subject.name, []);
-      }
-  
-      // Loop through each section of the subject
-      subject.sections.forEach((section) => {
-        // Check if the section's timeslots fit with the preferences
-        const nonConflictingTimeslots = section.timeslots.filter((timeslot) => {
-          const dayPreference = timePreferencesMap.get(timeslot.day);
-          return !daysOffSet.has(timeslot.day) && (
-            !dayPreference || (
-              (timeslot.startTime >= dayPreference.arrival || timeslot.startTime === "") &&
-              (timeslot.endTime <= dayPreference.departure || timeslot.endTime === "")
-            )
-          );
+  console.log("Days off: ", daysOffSet);
+  console.log("Time preferences map: ", timePreferencesMap);
+
+  // Loop through each subject
+  subjects.forEach((subject) => {
+    // Initialize an array in the map for the subject's non-conflicting sections
+    if (!subjectSectionsMap.has(subject.name)) {
+      subjectSectionsMap.set(subject.name, []);
+    }
+
+    // Loop through each section of the subject
+    subject.sections.forEach((section) => {
+      // Check if the section's timeslots fit with the preferences
+      const nonConflictingTimeslots = section.timeslots.filter((timeslot) => {
+        const dayPreference = timePreferencesMap.get(timeslot.day);
+        return !daysOffSet.has(timeslot.day) && (
+          !dayPreference || (
+            (timeslot.startTime >= dayPreference.arrival || timeslot.startTime === "") &&
+            (timeslot.endTime <= dayPreference.departure || timeslot.endTime === "")
+          )
+        );
+      });
+
+      // If there are non-conflicting timeslots, add the section to the map
+      if (nonConflictingTimeslots.length === section.timeslots.length) {
+        subjectSectionsMap.get(subject.name).push({
+          ...section,
+          timeslots: nonConflictingTimeslots
         });
+      }
+    });
+  });
 
-        
-  
-        // If there are non-conflicting timeslots, add the section to the map
-        if (nonConflictingTimeslots.length == section.timeslots.length) {
-          subjectSectionsMap.get(subject.name).push({
-            ...section,
-            timeslots: nonConflictingTimeslots
-          });
+  // Checking for overlapping timeslots across all subjects
+  const occupiedTimeslots = new Map();
+  subjectSectionsMap.forEach((sections, subjectName) => {
+    sections.forEach((section, index) => {
+      section.timeslots.forEach(timeslot => {
+        const timeslotKey = `${timeslot.day}-${timeslot.startTime}-${timeslot.endTime}`;
+        if (occupiedTimeslots.has(timeslotKey)) {
+          const existing = occupiedTimeslots.get(timeslotKey);
+          // Check which section to keep (can refine this decision logic)
+          if (existing.subjectName !== subjectName) {
+            sections.splice(index, 1); // Remove the current section
+            index--; // Adjust index after removal
+          }
+        } else {
+          occupiedTimeslots.set(timeslotKey, { subjectName, section });
         }
       });
     });
-  
-    // Convert the map into an object for the final timetable
-    const timetable = {};
-    subjectSectionsMap.forEach((sections, subjectName) => {
-      timetable[subjectName] = sections;
-    });
-  
-   
+  });
 
-
-
-    return { timetable, error: null };
+  // Remove any subjects that might have ended up with zero sections
+  for (let [subjectName, sections] of subjectSectionsMap.entries()) {
+    if (sections.length === 0) {
+      subjectSectionsMap.delete(subjectName);
+    }
   }
 
+  console.log("Map after conflict resolution: ", subjectSectionsMap);
+
+  // Convert the map into an object for the final timetable
+  const timetable = {};
+  subjectSectionsMap.forEach((sections, subjectName) => {
+    timetable[subjectName] = sections;
+  });
+  console.log("Final timetable: ", timetable);
+
+  return { timetable, error: null };
+}
 
 
 
