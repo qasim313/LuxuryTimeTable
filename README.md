@@ -1,3 +1,7 @@
+
+**LuxuryTimeTable
+**
+
 Introducing our NEXT.js-powered Timetable Assistant! Here's how it simplifies your scheduling:
 
 Input Your Schedule: Start by entering your available sections—these are the choices you need to navigate through, effectively setting the stage for your weekly planning.
