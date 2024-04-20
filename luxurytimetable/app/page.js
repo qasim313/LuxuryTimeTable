@@ -96,7 +96,7 @@ export default function Page() {
       setCurrentStep(steps.TIMETABLE_DISPLAY);
     }
   };
-
+//working on it 
   function generateTimetable(subjects, preferences) {
     // Initialize a map to hold non-conflicting sections for each subject
     const subjectSectionsMap = new Map();
@@ -108,7 +108,11 @@ export default function Page() {
       timePreferencesMap.set(pref.day, { arrival: pref.arrival, departure: pref.departure });
     });
   
-    console.log("pref: ", preferences);
+    // console.log("pref: ", preferences);
+
+
+    console.log("days of ",daysOffSet);
+    console.log("Time pref map ",timePreferencesMap);
   
     // Loop through each subject
     subjects.forEach((subject) => {
@@ -122,7 +126,6 @@ export default function Page() {
         // Check if the section's timeslots fit with the preferences
         const nonConflictingTimeslots = section.timeslots.filter((timeslot) => {
           const dayPreference = timePreferencesMap.get(timeslot.day);
-          // Make sure the day is not off and fits time preferences if specified
           return !daysOffSet.has(timeslot.day) && (
             !dayPreference || (
               (timeslot.startTime >= dayPreference.arrival || timeslot.startTime === "") &&
@@ -130,9 +133,11 @@ export default function Page() {
             )
           );
         });
+
+        
   
         // If there are non-conflicting timeslots, add the section to the map
-        if (nonConflictingTimeslots.length > 0) {
+        if (nonConflictingTimeslots.length == section.timeslots.length) {
           subjectSectionsMap.get(subject.name).push({
             ...section,
             timeslots: nonConflictingTimeslots
@@ -147,9 +152,16 @@ export default function Page() {
       timetable[subjectName] = sections;
     });
   
-    console.log("time table: ",timetable);
+   
+
+
+
     return { timetable, error: null };
   }
+
+
+
+
   
 
   const handleBack = () => {
