@@ -1,6 +1,4 @@
 
-**LuxuryTimeTable
-**
 
 Introducing our NEXT.js-powered Timetable Assistant! Here's how it simplifies your scheduling:
 
